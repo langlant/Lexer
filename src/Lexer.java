@@ -85,7 +85,7 @@ public class Lexer {
             	}
             }
             
-            //System.out.printf(lexer.dot_parse());
+            System.out.printf(lexer.dot_parse(lexer));
             
             
         }
