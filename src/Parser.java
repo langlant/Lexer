@@ -1,4 +1,3 @@
-import java.io.IOException; 
 
 public class Parser {
     private String errorMessage = "";
@@ -15,7 +14,8 @@ public class Parser {
     }
     
     public void graph_parse() {
-    	if(lexer.currentToken() == null) {
+    	if(lexer.currentToken() == TokenType.STRICT) {
+    			lexer.next();
     		if(lexer.currentToken() == TokenType.DIGRAPH || lexer.currentToken() == TokenType.GRAPH){
     			lexer.next();
     			if(lexer.currentToken() == TokenType.ID || lexer.currentToken() == TokenType.MAIN) {

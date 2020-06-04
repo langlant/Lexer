@@ -27,7 +27,6 @@ public enum TokenType {
     EDGE("edge"),
     NODE("node"),
     SUBGRAPH("subgraph"),
-    MAIN("main"),
     WSPACE(" +"),
     N("/^n$"),
     NE("/ne$"),
@@ -38,7 +37,8 @@ public enum TokenType {
     W("/w$"),
     NW("/nw$"),
     C("/c$"),
-    ID ("\\w+");
+    ID ("\\w+"),
+	STRICT(null);
 	
 	
 
