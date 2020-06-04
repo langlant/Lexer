@@ -1,100 +1,135 @@
 
 public class Parser {
-    private String errorMessage = "";
-    Lexer lexer = new Lexer("C:\\Users\\Langley\\Desktop\\CIS_675\\digraph.txt");
-    
-    public String dot_parse() {
-		graph_parse();
-		if(errorMessage == "") {
-			return "Text has no errors!";
+	   private String errorMessage = "";
+	   Lexer lexer = new Lexer("C:\\Users\\Langley\\Desktop\\CIS_675\\digraph.txt");
+	    
+	   public String dot_parse() {
+		   graph_parse();
+		   if(errorMessage =="") {
+			   return "Text has no errors!";
+		   } else {
+			   System.out.println(errorMessage);
+			   return errorMessage;
+		   }
+	   }
+	   
+	   public void graph_parse() {
+		   if(lexer.currentToken() == TokenType.STRICT) {
+			   lexer.next();
+			   if(lexer.currentToken() == TokenType.DIGRAPH) {
+				   lexer.next();
+				   if(lexer.currentToken() == TokenType.ID) {
+					   lexer.next();
+					   if(lexer.currentToken() == TokenType.LBRACE) {
+						   lexer.next();
+						   if(stmnt_list()) {
+							   lexer.next();
+							   if(!(lexer.currentToken() == TokenType.RBRACE)) {
+								   lexer.next();
+							   } else if(lexer.currentToken() == TokenType.RBRACE) {
+								   return;
+							   }
+						   }
+					   }
+				   }
+			   } else if(lexer.currentToken() == TokenType.GRAPH) {
+				   lexer.next();
+				   if(lexer.currentToken() == TokenType.ID) {
+					   lexer.next();
+					   if(lexer.currentToken() == TokenType.LBRACE) {
+						   lexer.next();
+						   if(stmnt_list()) {
+							   lexer.next();
+							   if(!(lexer.currentToken() == TokenType.RBRACE)) {
+								   lexer.next();
+							   } else if(lexer.currentToken() == TokenType.RBRACE) {
+								   return;
+							   }
+						   } else {
+							   errorMessage = "Graph: Must include statement list";
+						   }
+					   } else {
+						   errorMessage ="Graph: ID must be followed by a left brace";
+					   }
+				   } else {
+					   errorMessage = "Graph: must include ID";
+				   }
+			   } else {
+				    errorMessage = "Graph: No Digraph or Graph";
+		   }
+	   }
+	}
+	   
+	   public Boolean stmnt_list() {
+		  if(stmnt()) {
+			lexer.next();
+			if(lexer.currentToken() == TokenType.SEMI) {
+				while(lexer.currentToken() == TokenType.SEMI) {
+					lexer.next();
+					if(stmnt()) {
+						lexer.next();
+					}
+				}
+			}
 		} else {
-    	System.out.println(errorMessage);
-    	return errorMessage;
+			errorMessage = "Statment List: No statement list";
+			return false;
 		}
-    }
-    
-    public void graph_parse() {
-    	if(lexer.currentToken() == TokenType.STRICT) {
-    			lexer.next();
-    		if(lexer.currentToken() == TokenType.DIGRAPH || lexer.currentToken() == TokenType.GRAPH){
-    			lexer.next();
-    			if(lexer.currentToken() == TokenType.ID || lexer.currentToken() == TokenType.MAIN) {
-    				lexer.next();
-    				if(lexer.currentToken() == TokenType.LBRACE) {
-    					lexer.next();
-    					if(stmnt_list()) {
-    						lexer.next();
-    						if(!(lexer.currentToken() == TokenType.RBRACE)) {
-    							lexer.next();
-    					} else if( lexer.currentToken() == TokenType.RBRACE) {
-    						return;
-    					}
-    				} else {
-    					errorMessage = "Graph: Must include statement list";
-    				}
-    			} else {
-    				errorMessage = "Graph: ID must be followed by Left Brace";
-    			}
-    		} else {
-    			errorMessage = "Graph: Digraph must include ID";
-    		}
-    	} else {
-    		errorMessage = "Graph: No Digraph";
-    	}
-    }
- }
-    
-    public Boolean stmnt_list() {
-    	if(stmnt()) {
-    		lexer.next();
-    		if (lexer.currentToken() == TokenType.SEMI) {
-    			while(lexer.currentToken() == TokenType.SEMI) {
-    				lexer.next();
-    				if(stmnt()) {
-    					lexer.next();
-    				}
-    			}
-    		}
-    	} else {
-    		errorMessage = "Statement List: No statement list";
-    		return false;
-    	}
-    	return true;
-    }
-    
-    public Boolean stmnt() {
-    	if(node_stmnt() || edge_stmnt() || attr_stmnt() || subgraph()) {
-    		lexer.next();
-    		
-    	} else if((lexer.currentToken() == TokenType.ID || lexer.currentToken() == TokenType.MAIN)) {
-    		lexer.next();
-    		if(lexer.currentToken() == TokenType.EQUAL) {
-    			lexer.next();
-    			if(lexer.currentToken() == TokenType.ID || lexer.currentToken() == TokenType.MAIN) {
-    				lexer.next();
-    			}
-    		}
-    	} else {
-    		errorMessage = "Statement: No Statement";
-    		return false;
-
-    	}
-    	return true;
-    }
-    
-    public Boolean attr_stmnt() {
-    	if(lexer.currentToken() == TokenType.GRAPH || lexer.currentToken() == TokenType.NODE || lexer.currentToken() == TokenType.EDGE) {
-    		lexer.next();
-    		if(attr_list()) {
-    			lexer.next();
-    	} else {
-    		errorMessage = "Attribute Statement: Not a proper attribute statement";
-    		return false;
-    			}
-    		}
-    	return true;
-    }
-    
+		return true;
+	}
+	
+	public Boolean stmnt() {
+		if(node_stmnt()) {
+			lexer.next();
+		} else if(edge_stmnt()) {
+			lexer.next();
+		} else if(attr_stmnt()) {
+			lexer.next();
+		} else if(subgraph()) {
+			lexer.next();
+		} else if(lexer.currentToken() == TokenType.ID) {
+			lexer.next();
+			if(lexer.currentToken() == TokenType.EQUAL) {
+				lexer.next();
+				if(lexer.currentToken() == TokenType.ID) {
+					lexer.next();
+				}
+			}
+		}else {
+			errorMessage = "Statement: No statement";
+			return false;
+		}
+		return true;
+	}
+	
+	public Boolean attr_stmnt() {
+		if(lexer.currentToken() == TokenType.GRAPH) {
+			lexer.next();
+			if(attr_list()) {
+				lexer.next();
+			}
+		}else if(lexer.currentToken() == TokenType.NODE) {
+			lexer.next();
+			if(attr_list()) {
+				lexer.next();
+			}
+		}else if(lexer.currentToken() == TokenType.NODE) {
+			lexer.next();
+			if(attr_list()) {
+				lexer.next();
+			}
+		}else if(lexer.currentToken() == TokenType.EDGE) {
+			lexer.next();
+			if(attr_list()) {
+				lexer.next();
+			}
+		}else {
+			errorMessage = "Attribute Statement: Not a proper statement";
+			return false;
+		}
+		return true;
+	}
+	
     public Boolean attr_list() {
     	if(lexer.currentToken() == TokenType.LBRACKET) {
     		lexer.next();
@@ -115,7 +150,7 @@ public class Parser {
     	}
     	return true;
     }
-    
+ 
     public Boolean a_list() {
     	if(lexer.currentToken() == TokenType.ID) {
     		lexer.next();
@@ -130,7 +165,7 @@ public class Parser {
         						lexer.next();
         						if(lexer.currentToken() == TokenType.EQUAL) {
         							lexer.next();
-        							if(lexer.currentToken() == TokenType.ID || lexer.currentToken() == TokenType.MAIN) {
+        							if(lexer.currentToken() == TokenType.ID) {
         								lexer.next();
         								}
         							}
@@ -175,7 +210,7 @@ public class Parser {
     }
     
     public Boolean edge_RHS() {
-    	if(lexer.currentToken() == TokenType.EDGEOP || lexer.currentToken() == TokenType.ARROW) {
+    	if(lexer.currentToken() == TokenType.EDGEOP) {
     		lexer.next();
     		if(node_id()) {
     			lexer.next();
@@ -229,12 +264,19 @@ public class Parser {
     public Boolean port() {
     	if(lexer.currentToken() == TokenType.COLON) {
     		lexer.next();
-    		if(lexer.currentToken() == TokenType.ID || compass_pt()) {
+    		if(lexer.currentToken() == TokenType.ID) {
     			lexer.next();
     			if(compass_pt()) {
     				lexer.next();
     			}
-    		} else {
+    		}else if(compass_pt()) {
+    			lexer.next();
+    			if(compass_pt()) {
+    				lexer.next();
+    			}
+    		}
+    		else {
+ 
     			errorMessage = "Port: Must follow a colon with an ID or compass_pt";
     			return false;
     		}
@@ -248,7 +290,7 @@ public class Parser {
     public Boolean subgraph() {
     	if(lexer.currentToken() == TokenType.SUBGRAPH) {
     		lexer.next();
-    		if(lexer.currentToken() == TokenType.ID || lexer.currentToken() == TokenType.MAIN) {
+    		if(lexer.currentToken() == TokenType.ID) {
     			lexer.next();
     			if(lexer.currentToken() == TokenType.LBRACE) {
     				lexer.next();
