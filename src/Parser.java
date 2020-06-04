@@ -246,7 +246,7 @@ public class Parser {
     }
     
     public Boolean node_id() {
-    	if(lexer.currentToken() ==  TokenType.ID) {
+    	if(lexer.currentToken() == TokenType.ID) {
     		lexer.next();
     		if(port()) {
     			lexer.next();
